@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pacific Training — Will Riley</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d0f14;color:#e8eaf0;min-height:100vh;padding-bottom:84px;}
+.header{background:#161a22;border-bottom:1px solid #2a3040;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.logo{font-size:17px;font-weight:800;color:#00d4ff;letter-spacing:-0.5px;}.logo span{color:#e8eaf0;}
+.hname{font-size:14px;font-weight:700;color:#e8eaf0;}
+.sync-bar{background:#1e2330;border-bottom:1px solid #2a3040;padding:8px 20px;font-size:12px;color:#6b7894;text-align:center;}
+.week-tabs{display:flex;overflow-x:auto;background:#161a22;border-bottom:1px solid #2a3040;padding:0 12px;gap:2px;scrollbar-width:none;}
+.week-tabs::-webkit-scrollbar{display:none;}
+.wtab{flex:1;min-width:44px;padding:12px 8px;font-size:13px;font-weight:700;color:#6b7894;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.wtab.active{color:#00d4ff;border-bottom-color:#00d4ff;}
+.wtab.has-data{color:#b0b8d0;}
+.content{max-width:700px;margin:24px auto;padding:0 16px;}
+.week-heading{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6b7894;margin-bottom:20px;}
+.session-block{margin-bottom:32px;}
+.session-title{font-size:18px;font-weight:800;color:#00d4ff;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #2a3040;}
+.ex-cards{display:flex;flex-direction:column;gap:14px;}
+.ex-card{background:#161a22;border:1px solid #2a3040;border-radius:14px;padding:18px 20px;}
+.muscle-badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.ex-name{font-size:20px;font-weight:800;margin-bottom:4px;line-height:1.2;}
+.sets-reps{font-size:15px;font-weight:700;color:#00d4ff;margin-bottom:10px;}
+.coach-notes{display:flex;align-items:flex-start;gap:8px;background:#1e2330;border-radius:8px;padding:9px 13px;font-size:13px;color:#b0b8d0;line-height:1.5;margin-bottom:10px;}
+.video-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,53,0.15);color:#ff6b35;border:1px solid rgba(255,107,53,0.3);border-radius:8px;padding:6px 13px;font-size:13px;font-weight:700;text-decoration:none;margin-bottom:12px;}
+.log-section{border-top:1px solid #2a3040;padding-top:12px;margin-top:4px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.log-section{grid-template-columns:1fr;}}
+.log-field{display:flex;flex-direction:column;gap:5px;}
+.log-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7894;}
+.log-input,.log-ta{background:#1e2330;border:1px solid #2a3040;border-radius:8px;color:#e8eaf0;padding:8px 11px;font-size:14px;font-family:inherit;resize:vertical;width:100%;}
+.log-input{height:40px;}.log-ta{min-height:64px;}
+.log-input:focus,.log-ta:focus{border-color:#00d4ff;outline:none;}
+.not-ready{text-align:center;padding:60px 20px;color:#6b7894;}
+.nr-title{font-size:20px;font-weight:700;margin:16px 0 8px;}
+.nr-sub{font-size:14px;line-height:1.6;}
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:#161a22;border-top:1px solid #2a3040;padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:100;flex-wrap:wrap;}
+.save-btn{background:#00d4ff;color:#000;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;}
+.share-btn{background:#1e2330;color:#e8eaf0;border:1px solid #2a3040;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;}
+.save-status{font-size:12px;color:#00e676;font-weight:600;}
+</style></head><body>
+<div class="header">
+  <div class="logo">PACIFIC<span>TRAINING</span></div>
+  <div class="hname">Will Riley</div>
+</div>
+<div class="sync-bar" id="sync-bar">⏳ Loading your program...</div>
+<div class="week-tabs">
+  <button class="wtab active" data-w="1" onclick="showWeek(1)">W1</button>
+  <button class="wtab" data-w="2" onclick="showWeek(2)">W2</button>
+  <button class="wtab" data-w="3" onclick="showWeek(3)">W3</button>
+  <button class="wtab" data-w="4" onclick="showWeek(4)">W4</button>
+  <button class="wtab" data-w="5" onclick="showWeek(5)">W5</button>
+  <button class="wtab" data-w="6" onclick="showWeek(6)">W6</button>
+  <button class="wtab" data-w="7" onclick="showWeek(7)">W7</button>
+  <button class="wtab" data-w="8" onclick="showWeek(8)">W8</button>
+</div>
+<div class="content" id="week-content"></div>
+<div class="save-bar">
+  <button class="save-btn" onclick="saveProgress()">💾 Save Progress</button>
+  <button class="share-btn" onclick="shareProgress()">📋 Share with Coach</button>
+  <span class="save-status" id="save-status"></span>
+</div>
+<script>
+const BIN='6a33a5def5f4af5e29072479';
+const KEY='$2a$10$GH4QqIv2tQzlsFNyH2op1eWK8Jlz0TqEUYxqcP4fEA4IlChXiT4V6';
+let prog=null,curW=1,asTimer;
+const MC={chest:'#ff6b35',back:'#00d4ff',legs:'#00e676',shoulders:'#ffd600',arms:'#c084fc',core:'#f87171',glutes:'#fb923c',cardio:'#f0abfc',hamstrings:'#4ade80',quads:'#22d3ee',calves:'#a3e635',biceps:'#e879f9',triceps:'#818cf8',default:'#6b7894'};
+const gc=mg=>MC[(mg||'').toLowerCase().trim()]||MC.default;
+function syncBar(msg,hide){const e=document.getElementById('sync-bar');e.textContent=msg;e.style.display=msg?'':'none';if(hide)setTimeout(()=>e.style.display='none',hide);}
+function getW(w){try{return JSON.parse(localStorage.getItem('pt_w_'+BIN+'_'+w)||'{}')}catch(e){return{}}}
+function setW(w,d){localStorage.setItem('pt_w_'+BIN+'_'+w,JSON.stringify(d))}
+function markTabs(){for(let w=1;w<=8;w++){const t=document.querySelector('.wtab[data-w="'+w+'"]');if(t&&prog?.weeks?.[w])t.classList.add('has-data');}}
+function showWeek(w){flush();curW=w;document.querySelectorAll('.wtab').forEach(b=>b.classList.toggle('active',+b.dataset.w===w));render(w);}
+function render(w){
+  const el=document.getElementById('week-content');
+  const wd=prog?.weeks?.[w];
+  if(!wd?.sessions?.length){el.innerHTML='<div class="not-ready"><div style="font-size:48px">🏗️</div><div class="nr-title">Week '+w+' coming soon</div><div class="nr-sub">Your coach is still building this week.<br>Check back after your next session!</div></div>';return;}
+  const wts=getW(w);
+  const lbl=wd.label?'Week '+w+' — '+wd.label:'Week '+w;
+  let h='<div class="week-heading">'+lbl+'</div>';
+  wd.sessions.forEach((s,si)=>{
+    h+='<div class="session-block"><div class="session-title">'+(s.name||'Session '+(si+1))+'</div><div class="ex-cards">';
+    if(!s.exercises?.length){h+='<p style="color:#6b7894;padding:10px 0;">No exercises in this session yet.</p>';}
+    (s.exercises||[]).forEach((ex,ei)=>{
+      const k=si+'_'+ei,sv=wts[k]||{},col=gc(ex.muscleGroup);
+      h+='<div class="ex-card">'
+       +'<div class="muscle-badge" style="background:'+col+'22;color:'+col+';border:1px solid '+col+'55;">'+(ex.muscleGroup||'Exercise')+'</div>'
+       +'<div class="ex-name">'+(ex.exercise||'—')+'</div>'
+       +'<div class="sets-reps">'+(ex.sets||'–')+' sets × '+(ex.reps||'–')+' reps</div>'
+       +(ex.coachNotes?'<div class="coach-notes"><span>📋</span><span>'+ex.coachNotes+'</span></div>':'')
+       +(ex.videoUrl?'<a href="'+ex.videoUrl+'" target="_blank" class="video-btn">▶ Watch Video</a>':'')
+       +'<div class="log-section">'
+       +'<div class="log-field"><label>Weight Used</label><input type="text" placeholder="e.g. 80kg" class="log-input" data-k="'+k+'" data-f="w" value="'+(sv.w||'')+'" oninput="defer()"></div>'
+       +'<div class="log-field"><label>My Notes</label><textarea placeholder="How did it feel?" class="log-ta" data-k="'+k+'" data-f="n" oninput="defer()">'+(sv.n||'')+'</textarea></div>'
+       +'</div></div>';
+    });
+    h+='</div></div>';
+  });
+  el.innerHTML=h;
+}
+function defer(){clearTimeout(asTimer);asTimer=setTimeout(flush,1500);}
+function flush(){
+  clearTimeout(asTimer);
+  const d={};
+  document.querySelectorAll('[data-k][data-f]').forEach(el=>{if(!d[el.dataset.k])d[el.dataset.k]={};d[el.dataset.k][el.dataset.f]=el.value;});
+  setW(curW,d);
+}
+function saveProgress(){
+  flush();
+  const s=document.getElementById('save-status');
+  s.textContent='💾 Saving...';
+  const allLogs={};
+  for(let w=1;w<=8;w++){const wl=getW(w);if(Object.values(wl).some(v=>v.w||v.n))allLogs[w]=wl;}
+  (async()=>{
+    try{
+      const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),8000);
+      const get=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':KEY},signal:ctrl.signal});
+      if(!get.ok)throw new Error();
+      const cur=(await get.json()).record||{};
+      cur.clientLogs=allLogs;cur.logsUpdatedAt=new Date().toISOString();
+      await fetch('https://api.jsonbin.io/v3/b/'+BIN,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':KEY},body:JSON.stringify(cur)});
+      s.textContent='✅ Synced to coach';
+    }catch(e){s.textContent='✅ Saved locally';}
+    setTimeout(()=>s.textContent='',4000);
+  })();
+}
+function shareProgress(){
+  let r='Progress Report — '+(prog?.clientName||'Athlete')+'\n'+new Date().toLocaleDateString()+'\n'+'─'.repeat(36)+'\n\n';
+  let ok=false;
+  for(let w=1;w<=8;w++){
+    const wd=prog?.weeks?.[w],wts=getW(w);
+    if(!wd||!Object.values(wts).some(v=>v.w||v.n))continue;
+    ok=true;
+    r+='WEEK '+w+(wd.label?' — '+wd.label:'')+'\n';
+    wd.sessions?.forEach((s,si)=>{
+      const hasEx=(s.exercises||[]).some((ex,ei)=>{const sv=wts[si+'_'+ei]||{};return sv.w||sv.n;});
+      if(!hasEx)return;
+      r+='  '+(s.name||'Session '+(si+1))+'\n';
+      (s.exercises||[]).forEach((ex,ei)=>{const sv=wts[si+'_'+ei]||{};if(!sv.w&&!sv.n)return;r+='    • '+ex.exercise+(sv.w?' — '+sv.w:'')+(sv.n?' | '+sv.n:'')+' \n';});
+    });
+    r+='\n';
+  }
+  if(!ok){alert("No weights logged yet! Fill in your weights as you train.");return;}
+  function fallback(){
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+    ov.id='pt-report-overlay';
+    ov.innerHTML='<div style="background:#1e2330;border:1px solid #2a3040;border-radius:12px;padding:20px;width:100%;max-width:500px;"><div style="font-weight:700;margin-bottom:12px;font-size:15px;">📋 Copy this and send to your coach</div><textarea style="width:100%;height:220px;background:#0d0f14;border:1px solid #2a3040;border-radius:8px;color:#e8eaf0;padding:10px;font-size:11px;font-family:monospace;">'+r+'</textarea><button onclick="document.getElementById(\'pt-report-overlay\').remove()" style="margin-top:12px;background:#00d4ff;color:#000;border:none;border-radius:8px;padding:10px 24px;font-weight:700;cursor:pointer;width:100%;">Close</button></div>';
+    document.body.appendChild(ov);
+  }
+  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(r).then(()=>alert('Copied to clipboard! 📋\nPaste it in a WhatsApp or email to your coach.')).catch(fallback);}else{fallback();}
+}
+async function init(){
+  const cached=localStorage.getItem('pt_prog_'+BIN);
+  if(cached){try{prog=JSON.parse(cached);render(1);markTabs();}catch(e){}}
+  syncBar(prog?'🔄 Checking for updates...':'⏳ Loading your program...');
+  try{
+    if(!BIN||BIN==='undefined')throw new Error('No program ID — ask your coach to resend the file.');
+    if(!KEY||KEY==='undefined')throw new Error('Missing key — ask your coach to resend the file.');
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),10000);
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':KEY},signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!r.ok)throw new Error('Server error '+r.status+' — ask your coach to check their JSONBin key.');
+    const j=await r.json();
+    prog=j.record;
+    localStorage.setItem('pt_prog_'+BIN,JSON.stringify(prog));
+    render(curW);markTabs();
+    syncBar('✅ Program up to date',3000);
+  }catch(e){
+    const msg=e.name==='AbortError'?'❌ Connection timed out. Check your internet and tap a week tab to retry.':'❌ '+e.message;
+    syncBar(msg,prog?5000:0);
+    if(prog){render(curW);markTabs();}
+  }
+}
+init();
+</script></body></html>
