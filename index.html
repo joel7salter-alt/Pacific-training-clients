@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0e17">
+<title>Pacific Training — Speed & Agility</title>
+<style>
+  :root{--bg:#0a0e17;--surface:#121826;--surface2:#1a2233;--border:#28324a;--text:#e8edf5;--muted:#8190a8;--accent:#00d4ff;--accent2:#ff6b35;--green:#00e676;--yellow:#ffd600;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding-bottom:40px;}
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(10,14,23,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:14px 16px 10px;}
+  .brand{font-size:13px;font-weight:800;letter-spacing:0.5px;color:var(--accent);text-transform:uppercase;}
+  .block-name{font-size:18px;font-weight:800;margin-top:2px;}
+  .updated{font-size:11px;color:var(--muted);margin-top:2px;}
+  .wtabs{display:flex;gap:6px;overflow-x:auto;padding:12px 16px 4px;-webkit-overflow-scrolling:touch;}
+  .wtab{flex:0 0 auto;min-width:54px;padding:10px 6px;font-size:13px;font-weight:800;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;text-align:center;}
+  .wtab .wt-sub{display:block;font-size:9px;font-weight:700;margin-top:2px;opacity:0.8;}
+  .wtab.active{color:#001018;background:var(--accent);border-color:var(--accent);}
+  .wrap{padding:14px 16px;max-width:760px;margin:0 auto;}
+  .phase-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
+  .phase-head h1{font-size:22px;margin:0;font-weight:800;}
+  .phase-badge{font-size:12px;font-weight:800;padding:5px 12px;border-radius:99px;border:1.5px solid;white-space:nowrap;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+  .card-title{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .focus-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .focus-list li{background:var(--surface2);border-radius:8px;padding:9px 12px;font-size:14px;font-weight:600;}
+  .sess-goal{font-size:13px;color:var(--muted);font-style:italic;margin-bottom:12px;line-height:1.5;}
+  .drill{border-left:4px solid var(--muted);background:var(--surface2);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+  .drill-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .drill-tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;padding:2px 8px;border-radius:99px;}
+  .drill-name{font-size:15px;font-weight:700;}
+  .drill-dur{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted);}
+  .drill-notes{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.45;}
+  .muted{color:var(--muted);font-size:13px;}
+  .testing-banner{background:rgba(255,214,0,0.08);border:1px solid var(--yellow);border-radius:12px;padding:14px;margin-bottom:14px;}
+  .testing-banner .tb-title{color:var(--yellow);font-weight:800;font-size:14px;margin-bottom:4px;}
+  .note-box{background:rgba(0,212,255,0.05);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;}
+  .empty{color:var(--muted);font-size:13px;padding:6px 0;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">⚡ Pacific Training</div>
+  <div class="block-name" id="blockName"></div>
+  <div class="updated" id="updated"></div>
+</div>
+<div class="wtabs" id="wtabs"></div>
+<div class="wrap" id="content"></div>
+<script>
+const BIN="6a3b3b8cf5f4af5e292683ec", KEY="$2a$10$GH4QqIv2tQzlsFNyH2op1eWK8Jlz0TqEUYxqcP4fEA4IlChXiT4V6";
+const FALLBACK={"block":"Block 1","currentWeek":2,"updatedAt":"2026-06-24T02:17:48.002Z","cats":{"warmup":{"label":"Warmup / Sprint Mech","color":"var(--yellow)"},"plyo":{"label":"Plyometrics","color":"#a78bfa"},"speed":{"label":"Speed","color":"var(--accent)"},"agility":{"label":"Agility","color":"var(--green)"},"other":{"label":"Other","color":"var(--muted)"}},"weeks":[{"week":1,"phase":"Speed — Testing","phaseTag":"Testing","color":"var(--yellow)","speed":["Reaction time","Power","Plyometrics"],"agility":["Short sharp change of direction","Light feet","Multi directional speed"],"testing":["40m dash","100m sprint"],"notes":"Establish baseline times. Keep intensity controlled — athletes should feel sharp, not fatigued.","weekNote":"","allLevel":null,"elite":null},{"week":2,"phase":"Speed — Acceleration","phaseTag":"Acceleration","color":"var(--accent2)","speed":["Leg speed","Reaction time","Power","Plyometrics","Sprints 30m"],"agility":["Short sharp change of direction","Light feet","Multi directional speed"],"testing":[],"notes":"Focus on drive phase mechanics. Short, explosive efforts. Emphasise triple extension.","weekNote":"","allLevel":{"goal":"Improve single leg ankle and calf strength, increase reaction time and short step change of direction","drills":[{"category":"warmup","name":"Sprint mechanics drills","notes":"A marches, A skips, B skips, High knees, Dribble steps, straight leg stides, Backwards runs","duration":"10"},{"category":"warmup","name":"Ladders","notes":"Pogos, Single leg pogos, slides, lateral in and out","duration":"5"},{"category":"plyo","name":"Single leg hops over cones","notes":"Knee to chest, fast contact on the ground, jump as high as you can","duration":"5"},{"category":"speed","name":"Dual leg transition to staggered stance runs","notes":"Start on your toes hands on hips, coach claps and athlete transitions to a split stance and then into a sprint.","duration":"10"},{"category":"agility","name":"Diamond cone change of direction","notes":"4 cones set up, athlete in the middle of them, coach calls out left right forward or back athlete runs to whatever is called out and touches with hand, athlete always comes back to centre before going to another cone","duration":"10"},{"category":"speed","name":"Sprints 30m","notes":"","duration":""}]},"elite":{"goal":"Improve single leg ankle and calf strength, increase reaction time and short step change of direction","drills":[{"name":"Sprint mechanics drills","notes":"A marches, A skips, B skips, High knees, Dribble steps, straight leg stides, Backwards runs","duration":""},{"name":"Ladders","notes":"Pogos, Single leg pogos, slides, lateral in and out","duration":""},{"name":"Single leg hops over cones","notes":"Knee to chest, fast contact on the ground, jump as high as you can","duration":""},{"name":"Dual leg transition to staggered stance runs","notes":"Start on your toes hands on hips, coach claps and athlete transitions to a split stance and then into a sprint.","duration":""},{"name":"Diamond cone change of direction","notes":"4 cones set up, athlete in the middle of them, coach calls out left right forward or back athlete runs to whatever is called out and touches with hand, athlete always comes back to centre before going to another cone","duration":""}]}},{"week":3,"phase":"Speed — Acceleration","phaseTag":"Acceleration","color":"var(--accent2)","speed":["Leg speed","Reaction time","Power","Plyometrics","Sprints 30m"],"agility":["Short sharp change of direction","Light feet","Multi directional speed"],"testing":[],"notes":"Consolidation week. Reinforce cues from Week 2. Athletes should be feeling the adaptation.","weekNote":"","allLevel":null,"elite":null},{"week":4,"phase":"Speed — Transition Phase","phaseTag":"Transition","color":"#a78bfa","speed":["Deceleration","Plyometrics","Resistance speed training","Sprints 60m"],"agility":["Change of direction from standing start","Multi directional speed","Short sharp change of direction (sport specific)"],"testing":[],"notes":"Bridge from acceleration into top speed. Longer sprints — maintain mechanics under fatigue.","weekNote":"","allLevel":null,"elite":null},{"week":5,"phase":"Speed — Transition Phase","phaseTag":"Transition","color":"#a78bfa","speed":["Deceleration","Plyometrics","Resistance speed training","Sprints 70m"],"agility":["Change of direction from standing start","Multi directional speed","Short sharp change of direction (sport specific)"],"testing":[],"notes":"Push sprint distance to 70m. Sport-specific agility emphasis. Watch for technique breakdown at fatigue.","weekNote":"","allLevel":null,"elite":null},{"week":6,"phase":"Speed — Top Speed","phaseTag":"Top Speed","color":"var(--accent)","speed":["Stride length","Long runs (150–200m)","Core stability (overhead work)","Sprints 80m"],"agility":["Change of direction at speed","Change of direction into sprints","Counter weight training with COD"],"testing":[],"notes":"Maximum velocity phase. Full recovery between reps. Quality over quantity — no garbage volume.","weekNote":"","allLevel":null,"elite":null},{"week":7,"phase":"Speed — Top Speed","phaseTag":"Top Speed","color":"var(--accent)","speed":["Stride length","Long runs (150–200m)","Core stability (overhead work)","Sprints 100m"],"agility":["Change of direction at speed","Change of direction into sprints","Counter weight training with COD"],"testing":[],"notes":"Second top speed week — athletes should be hitting near-maximum velocity. Hold technique under fatigue. Full recovery between reps, no garbage reps.","weekNote":"","allLevel":null,"elite":null},{"week":8,"phase":"Speed — Testing","phaseTag":"Testing","color":"var(--yellow)","speed":["Longer emphasis on drills","Stride length × frequency"],"agility":["Change of direction at speed","Change of direction into sprints","Counter weight training with COD"],"testing":["60m dash","100m sprint","Pacific Training agility test"],"notes":"Re-test week. Compare to Week 1 times. Celebrate improvements — data tells the story.","weekNote":"","allLevel":null,"elite":null}]};
+const CACHE_KEY='speed_prog_'+BIN;
+let cached=null; try{cached=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');}catch(e){}
+let DATA = (cached&&cached.weeks)?cached:FALLBACK;
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function catOf(k){const C=(DATA&&DATA.cats)||{};return C[k] || C.other || {label:k||'Other',color:'#8190a8'};}
+
+function drillHTML(d){
+  const c = catOf(d.category);
+  return '<div class="drill" style="border-left-color:'+c.color+';">'
+    + '<div class="drill-top">'
+    + '<span class="drill-tag" style="background:'+c.color+';color:#001018;">'+esc(c.label)+'</span>'
+    + '<span class="drill-name">'+esc(d.name)+'</span>'
+    + (d.duration?'<span class="drill-dur">'+esc(d.duration)+'</span>':'')
+    + '</div>'
+    + (d.notes?'<div class="drill-notes">'+esc(d.notes)+'</div>':'')
+    + '</div>';
+}
+
+function sessionHTML(title, color, sess){
+  let body='';
+  if(sess && sess.goal) body+='<div class="sess-goal">'+esc(sess.goal)+'</div>';
+  const drills=(sess&&sess.drills)?sess.drills.filter(d=>d.name):[];
+  if(drills.length) body+=drills.map(drillHTML).join('');
+  else body+='<div class="empty">No drills programmed for this session yet.</div>';
+  return '<div class="card"><div class="card-title" style="color:'+color+';">'+esc(title)+'</div>'+body+'</div>';
+}
+
+function render(weekNum){
+  const w=DATA.weeks.find(x=>x.week===weekNum)||DATA.weeks[0];
+  document.querySelectorAll('.wtab').forEach(t=>t.classList.toggle('active',+t.dataset.w===w.week));
+  let h='';
+  h+='<div class="phase-head"><h1>Week '+w.week+'</h1>'
+    +'<span class="phase-badge" style="border-color:'+w.color+';color:'+w.color+';">'+esc(w.phaseTag)+'</span></div>';
+  h+='<div class="muted" style="margin-bottom:14px;">'+esc(w.phase)+'</div>';
+
+  if(w.testing && w.testing.length){
+    h+='<div class="testing-banner"><div class="tb-title">🏁 Testing Week</div><div class="muted">'+w.testing.map(esc).join(' · ')+'</div></div>';
+  }
+
+  // Sessions first — what you coach from at the field
+  h+=sessionHTML('🟢 All Level Session','var(--green)',w.allLevel);
+  h+=sessionHTML('⚡ Elite Session','var(--accent)',w.elite);
+
+  // Phase focus reference
+  h+='<div class="card"><div class="card-title" style="color:var(--accent);">⚡ Speed Focus</div>'
+    +(w.speed.length?'<ul class="focus-list">'+w.speed.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<div class="empty">—</div>')+'</div>';
+  h+='<div class="card"><div class="card-title" style="color:var(--accent2);">🔄 Agility Focus</div>'
+    +(w.agility.length?'<ul class="focus-list">'+w.agility.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<div class="empty">—</div>')+'</div>';
+
+  if(w.notes||w.weekNote){
+    h+='<div class="note-box"><div class="card-title">💬 Coaching Notes</div>'
+      +(w.notes?'<div class="muted" style="margin-bottom:'+(w.weekNote?'8px':'0')+';line-height:1.5;">'+esc(w.notes)+'</div>':'')
+      +(w.weekNote?'<div style="font-size:14px;line-height:1.5;">'+esc(w.weekNote)+'</div>':'')
+      +'</div>';
+  }
+  document.getElementById('content').innerHTML=h;
+  window.scrollTo(0,0);
+}
+
+function buildTabs(){
+  document.getElementById('wtabs').innerHTML=DATA.weeks.map(w=>
+    '<button class="wtab" data-w="'+w.week+'" onclick="render('+w.week+')">W'+w.week+'<span class="wt-sub">'+esc(w.phaseTag)+'</span></button>'
+  ).join('');
+}
+
+// Swipe between weeks
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)<60)return;
+  const cur=DATA.weeks.find(w=>document.querySelector('.wtab[data-w="'+w.week+'"]').classList.contains('active'));
+  let idx=DATA.weeks.indexOf(cur);
+  if(dx<0&&idx<DATA.weeks.length-1)render(DATA.weeks[idx+1].week);
+  else if(dx>0&&idx>0)render(DATA.weeks[idx-1].week);
+},{passive:true});
+
+function renderAll(week){
+  if(!DATA||!DATA.weeks){document.getElementById('content').innerHTML='<div class="empty" style="padding:30px;">Program is loading… reconnect to the internet and reopen if this stays.</div>';return;}
+  document.getElementById('blockName').textContent=DATA.block||'Pacific Training';
+  document.getElementById('updated').textContent= DATA.updatedAt ? 'Updated '+new Date(DATA.updatedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '';
+  buildTabs();
+  render(week||(DATA.currentWeek||1));
+}
+function syncBar(msg,timeout){
+  let b=document.getElementById('syncbar');
+  if(!b){b=document.createElement('div');b.id='syncbar';b.style.cssText='position:fixed;left:0;right:0;bottom:0;background:var(--surface2);color:var(--muted);font-size:12px;text-align:center;padding:8px;border-top:1px solid var(--border);z-index:50;';document.body.appendChild(b);}
+  b.textContent=msg;b.style.display=msg?'block':'none';
+  if(timeout)setTimeout(()=>{b.style.display='none';},timeout);
+}
+async function init(){
+  renderAll();
+  if(!BIN||!KEY)return;
+  syncBar(DATA&&DATA.weeks?'🔄 Checking for updates…':'⏳ Loading…');
+  try{
+    const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),10000);
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':KEY},signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!r.ok)throw new Error('server '+r.status);
+    const j=await r.json();
+    if(j.record&&j.record.weeks){
+      DATA=j.record;
+      try{localStorage.setItem(CACHE_KEY,JSON.stringify(DATA));}catch(e){}
+      const at=document.querySelector('.wtab.active');
+      renderAll(at?+at.dataset.w:(DATA.currentWeek||1));
+      syncBar('✅ Up to date',2500);
+    }else{syncBar('',0);}
+  }catch(e){
+    syncBar(DATA&&DATA.weeks?'📴 Offline — showing saved program':'⚠️ Could not load — reconnect and reopen',4000);
+  }
+}
+init();
+</script>
+</body>
+</html>
