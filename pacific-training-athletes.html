@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pacific Training — Athlete Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d0f14;color:#e8eaf0;min-height:100vh;padding-bottom:40px;}
+.header{background:#161a22;border-bottom:1px solid #2a3040;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.logo{font-size:17px;font-weight:800;color:#00d4ff;letter-spacing:-0.5px;}.logo span{color:#e8eaf0;}
+.hname{font-size:14px;font-weight:700;}
+.sync-bar{background:#1e2330;border-bottom:1px solid #2a3040;padding:8px 20px;font-size:12px;color:#6b7894;text-align:center;}
+.content{max-width:700px;margin:20px auto;padding:0 16px;}
+.card{background:#161a22;border:1px solid #2a3040;border-radius:14px;padding:18px 20px;margin-bottom:16px;}
+.card-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#6b7894;margin-bottom:12px;}
+.gate{max-width:340px;margin:60px auto;text-align:center;padding:0 16px;}
+.gate input{width:100%;background:#1e2330;border:1px solid #2a3040;border-radius:10px;color:#e8eaf0;padding:14px;font-size:18px;text-align:center;letter-spacing:3px;text-transform:uppercase;margin:16px 0;}
+.gate input:focus{border-color:#00d4ff;outline:none;}
+.gate button{width:100%;background:#00d4ff;color:#000;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;}
+.gate-err{color:#f87171;font-size:13px;margin-top:10px;min-height:18px;}
+.imp-banner{background:linear-gradient(135deg,rgba(0,230,118,0.12),rgba(0,212,255,0.08));border:1px solid rgba(0,230,118,0.35);border-radius:14px;padding:16px 20px;margin-bottom:16px;}
+.imp-big{font-size:22px;font-weight:800;color:#00e676;}
+.imp-sub{font-size:12px;color:#6b7894;margin-top:2px;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#6b7894;text-align:left;padding:6px 8px;border-bottom:1px solid #2a3040;}
+td{padding:8px;border-bottom:1px solid #1e2330;}
+.pb{color:#ffd600;font-weight:800;}
+.pb-tag{font-size:9px;background:#ffd600;color:#000;border-radius:99px;padding:1px 6px;margin-left:6px;font-weight:800;vertical-align:middle;}
+.lb-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #1e2330;font-size:14px;}
+.lb-rank{width:26px;font-size:16px;}
+.lb-name{flex:1;font-weight:700;}
+.lb-time{font-weight:800;color:#00d4ff;}
+.drill{border:1px solid #2a3040;border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+.drill-name{font-weight:800;font-size:15px;}
+.drill-notes{font-size:13px;color:#b0b8d0;line-height:1.5;margin-top:4px;}
+.drill-cat{display:inline-block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-radius:99px;padding:2px 8px;margin-bottom:6px;background:rgba(0,212,255,0.12);color:#00d4ff;border:1px solid rgba(0,212,255,0.3);}
+.switch{font-size:12px;color:#6b7894;text-align:center;margin-top:20px;}
+.switch a{color:#00d4ff;cursor:pointer;text-decoration:underline;}
+.week-title{font-size:16px;font-weight:800;color:#00d4ff;margin-bottom:4px;}
+.week-note{font-size:13px;color:#b0b8d0;margin-bottom:12px;line-height:1.5;}
+</style></head><body>
+<div class="header">
+  <div class="logo">PACIFIC<span>TRAINING</span></div>
+  <div class="hname" id="hub-name">Athlete Hub</div>
+</div>
+<div class="sync-bar" id="sync-bar">⏳ Loading...</div>
+<div id="app"></div>
+<script>
+const SBIN='6a3b3b8cf5f4af5e292683ec';
+const HBIN='6a6199b5f5f4af5e29b3f87c';
+const KEY='$2a$10$GH4QqIv2tQzlsFNyH2op1eWK8Jlz0TqEUYxqcP4fEA4IlChXiT4V6';
+let hub=null,prog=null;
+function syncBar(m,hide){var e=document.getElementById('sync-bar');e.textContent=m;e.style.display=m?'':'none';if(hide)setTimeout(function(){e.style.display='none';},hide);}
+function fmtT(t){return t!=null?Number(t).toFixed(2)+'s':'—';}
+function initials(name){return name.trim().split(/\s+/).map(function(p){return p[0].toUpperCase()+'.';}).join(' ');}
+function myCode(){return localStorage.getItem('pt_hub_code')||'';}
+function findAthlete(code){if(!hub)return null;code=(code||'').trim().toUpperCase();return (hub.athletes||[]).find(function(a){return (a.code||'').toUpperCase()===code;})||null;}
+function enterCode(){
+  var v=document.getElementById('code-input').value;
+  var a=findAthlete(v);
+  if(!a){document.getElementById('gate-err').textContent='Code not found — check with Coach Joel';return;}
+  localStorage.setItem('pt_hub_code',v.trim().toUpperCase());
+  render();
+}
+function switchAthlete(){localStorage.removeItem('pt_hub_code');render();}
+function bestOf(times,mkey){var best=null;Object.values(times||{}).forEach(function(t){if(t[mkey]!=null&&(best==null||t[mkey]<best))best=t[mkey];});return best;}
+function renderGate(){
+  document.getElementById('hub-name').textContent='Athlete Hub';
+  document.getElementById('app').innerHTML='<div class="gate">'
+   +'<div style="font-size:44px;">⚡</div>'
+   +'<h2 style="margin-top:10px;">Enter your athlete code</h2>'
+   +'<p style="color:#6b7894;font-size:13px;margin-top:6px;">Coach Joel gave you this at training. You only need to do this once.</p>'
+   +'<input id="code-input" placeholder="" autocapitalize="characters" autocomplete="off">'
+   +'<button onclick="enterCode()">Let\'s go 🚀</button>'
+   +'<div class="gate-err" id="gate-err"></div>'
+   +'</div>';
+}
+function renderSessionCard(){
+  if(!prog||!prog.weeks)return '';
+  var cw=prog.currentWeek||1;
+  var w=prog.weeks.find(function(x){return x.week===cw;});
+  if(!w)return '';
+  var h='<div class="card"><div class="card-title">🏃 This Week at Training</div>';
+  h+='<div class="week-title">Week '+cw+' — '+(w.phase||'')+'</div>';
+  if(w.notes)h+='<div class="week-note">'+w.notes+'</div>';
+  var s=w.allLevel;
+  if(s&&s.drills&&s.drills.length){
+    if(s.goal)h+='<div class="week-note">🎯 '+s.goal+'</div>';
+    s.drills.forEach(function(dr){
+      h+='<div class="drill">'+(dr.category?'<div class="drill-cat">'+dr.category+'</div>':'')
+       +'<div class="drill-name">'+dr.name+(dr.duration?' <span style="color:#6b7894;font-weight:600;font-size:12px;">· '+dr.duration+' min</span>':'')+'</div>'
+       +(dr.notes?'<div class="drill-notes">'+dr.notes+'</div>':'')+'</div>';
+    });
+  } else {
+    h+='<div class="week-note">Focus this week:</div>';
+    (w.speed||[]).concat(w.agility||[]).forEach(function(f){h+='<div class="drill"><div class="drill-name" style="font-size:14px;">'+f+'</div></div>';});
+  }
+  return h+'</div>';
+}
+function renderApp(a){
+  document.getElementById('hub-name').textContent=a.name.split(' ')[0];
+  var h='<div class="content">';
+  // Improvement banner
+  var blocks=hub.blocks||[];
+  var withData=blocks.filter(function(b){return a.times&&a.times[b.id];});
+  var imp='';
+  ['m40','m100'].forEach(function(mk){
+    var vals=withData.map(function(b){return a.times[b.id][mk];}).filter(function(v){return v!=null;});
+    if(vals.length>=2){
+      var diff=vals[vals.length-1]-vals[0];
+      var label=mk==='m40'?'40m':'100m';
+      if(diff<0)imp+='<div class="imp-big">▼ '+Math.abs(diff).toFixed(2)+'s faster over '+label+'</div><div class="imp-sub">since your first test — keep going! 🔥</div>';
+    }
+  });
+  if(imp)h+='<div class="imp-banner">'+imp+'</div>';
+  // My times
+  h+='<div class="card"><div class="card-title">⚡ My Testing Times</div>';
+  if(withData.length){
+    var pb40=bestOf(a.times,'m40'),pb100=bestOf(a.times,'m100');
+    h+='<table><tr><th>Testing block</th><th>40m</th><th>100m</th></tr>';
+    blocks.forEach(function(b){
+      var t=a.times[b.id];if(!t)return;
+      var c40=(t.m40!=null&&t.m40===pb40)?'<span class="pb">'+fmtT(t.m40)+'<span class="pb-tag">PB</span></span>':fmtT(t.m40);
+      var c100=(t.m100!=null&&t.m100===pb100)?'<span class="pb">'+fmtT(t.m100)+'<span class="pb-tag">PB</span></span>':fmtT(t.m100);
+      h+='<tr><td>'+b.label+'</td><td>'+c40+'</td><td>'+c100+'</td></tr>';
+    });
+    h+='</table>';
+  } else {
+    h+='<div style="color:#6b7894;font-size:13px;">No testing times yet — your first testing day is coming up!</div>';
+  }
+  h+='</div>';
+  // My videos
+  if(a.videos&&a.videos.length){
+    h+='<div class="card"><div class="card-title">🎥 My Video Analysis</div>';
+    a.videos.slice().reverse().forEach(function(v){
+      h+='<a href="'+v.url+'" target="_blank" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #1e2330;text-decoration:none;">'
+       +'<span><span style="display:block;font-weight:800;color:#e8eaf0;font-size:14px;">▶ '+v.title+'</span>'
+       +(v.date?'<span style="font-size:11px;color:#6b7894;">'+v.date+'</span>':'')+'</span>'
+       +'<span style="background:rgba(255,107,53,0.15);color:#ff6b35;border:1px solid rgba(255,107,53,0.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:800;white-space:nowrap;">Watch</span>'
+       +'</a>';
+    });
+    h+='</div>';
+  }
+  // Session
+  h+=renderSessionCard();
+  // Leaderboard (top 3, initials only)
+  var lb40=[],lb100=[];
+  (hub.athletes||[]).forEach(function(x){
+    var b40=bestOf(x.times,'m40'),b100=bestOf(x.times,'m100');
+    if(b40!=null)lb40.push({n:initials(x.name),t:b40,me:x.code===a.code});
+    if(b100!=null)lb100.push({n:initials(x.name),t:b100,me:x.code===a.code});
+  });
+  lb40.sort(function(x,y){return x.t-y.t;});lb100.sort(function(x,y){return x.t-y.t;});
+  var medals=['🥇','🥈','🥉'];
+  h+='<div class="card"><div class="card-title">🏆 Fastest at Pacific Training</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">';
+  [['40m',lb40],['100m',lb100]].forEach(function(pair){
+    h+='<div><div style="font-size:11px;font-weight:800;color:#00d4ff;margin-bottom:6px;">'+pair[0]+'</div>';
+    pair[1].slice(0,3).forEach(function(e,i){
+      h+='<div class="lb-row"><span class="lb-rank">'+medals[i]+'</span><span class="lb-name">'+e.n+(e.me?' <span style="color:#00e676;font-size:11px;">(you!)</span>':'')+'</span><span class="lb-time">'+fmtT(e.t)+'</span></div>';
+    });
+    if(!pair[1].length)h+='<div style="color:#6b7894;font-size:12px;">No times yet</div>';
+    h+='</div>';
+  });
+  h+='</div></div>';
+  h+='<div class="switch">Not '+a.name.split(' ')[0]+'? <a onclick="switchAthlete()">Enter a different code</a></div>';
+  h+='</div>';
+  document.getElementById('app').innerHTML=h;
+}
+function render(){
+  var a=findAthlete(myCode());
+  if(a)renderApp(a);else renderGate();
+}
+async function init(){
+  var cachedH=localStorage.getItem('pt_hub_'+HBIN),cachedP=localStorage.getItem('pt_prog_'+SBIN);
+  if(cachedH){try{hub=JSON.parse(cachedH);}catch(e){}}
+  if(cachedP){try{prog=JSON.parse(cachedP);}catch(e){}}
+  if(hub)render();
+  syncBar(hub?'🔄 Checking for updates...':'⏳ Loading...');
+  try{
+    var res=await Promise.all([
+      fetch('https://api.jsonbin.io/v3/b/'+HBIN+'/latest',{headers:{'X-Master-Key':KEY}}),
+      fetch('https://api.jsonbin.io/v3/b/'+SBIN+'/latest',{headers:{'X-Master-Key':KEY}})
+    ]);
+    if(res[0].ok){hub=(await res[0].json()).record;localStorage.setItem('pt_hub_'+HBIN,JSON.stringify(hub));}
+    if(res[1].ok){prog=(await res[1].json()).record;localStorage.setItem('pt_prog_'+SBIN,JSON.stringify(prog));}
+    if(!hub)throw new Error('Could not load — ask Coach Joel to hit Publish Times.');
+    render();
+    syncBar('✅ Up to date',2500);
+  }catch(e){
+    if(hub){render();syncBar('⚠️ Offline — showing saved data',4000);}
+    else syncBar('❌ '+e.message,0);
+  }
+}
+init();
+</script></body></html>
