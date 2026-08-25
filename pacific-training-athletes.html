@@ -40,6 +40,13 @@ td{padding:8px 6px;border-bottom:1px solid #1e2330;}
 .tabs{display:flex;gap:8px;margin-bottom:12px;}
 .tab{flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;border:1px solid #2a3040;background:#1e2330;color:#6b7894;}
 .tab.on{background:rgba(0,212,255,0.14);border-color:rgba(0,212,255,0.5);color:#00d4ff;}
+.sch{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:11px 12px;border:1px solid #2a3040;border-radius:10px;margin-bottom:8px;}
+.sch.on{border-color:rgba(0,212,255,0.55);background:rgba(0,212,255,0.07);}
+.sch-d{font-size:14px;font-weight:800;min-width:96px;}
+.sch.on .sch-d{color:#00d4ff;}
+.sch-today{font-size:9px;font-weight:800;letter-spacing:1px;background:#00d4ff;color:#000;border-radius:99px;padding:2px 7px;vertical-align:middle;}
+.sch-n{font-size:14px;font-weight:700;color:#e8eaf0;flex:1;min-width:120px;}
+.sch-m{font-size:12.5px;color:#6b7894;font-weight:600;width:100%;}
 </style></head><body>
 <div class="header">
   <div class="logo">PACIFIC<span>TRAINING</span></div>
@@ -118,6 +125,27 @@ function renderSessionCard(){
   }
   return h+'</div>';
 }
+var SCHED_DEFAULT=[
+ {day:'Tuesday',name:'All Levels',time:'4:00pm',place:'Barton Oval'},
+ {day:'Wednesday',name:'All Levels',time:'4:00pm',place:'Barton Oval'},
+ {day:'Thursday',name:'Elite Athlete Program',time:'4:00pm',place:'Barton Oval'},
+ {day:'Friday',name:'All Levels',time:'4:00pm',place:'Barton Oval'}
+];
+function renderScheduleCard(){
+  var list=(hub&&hub.schedule&&hub.schedule.length)?hub.schedule:SCHED_DEFAULT;
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var today=days[new Date().getDay()];
+  var h='<div class="card"><div class="card-title">\u{1F4C5} Weekly Schedule</div>';
+  list.forEach(function(x){
+    var on=(x.day===today);
+    h+='<div class="sch'+(on?' on':'')+'">'
+     +'<div class="sch-d">'+x.day+(on?' <span class="sch-today">TODAY</span>':'')+'</div>'
+     +'<div class="sch-n">'+x.name+'</div>'
+     +'<div class="sch-m">'+x.time+(x.place?' \u00b7 '+x.place:'')+'</div>'
+     +'</div>';
+  });
+  return h+'</div>';
+}
 function renderApp(a){
   document.getElementById('hub-name').textContent=a.name.split(' ')[0];
   var h='<div class="content">';
@@ -172,6 +200,8 @@ function renderApp(a){
   }
   // This week's session
   h+=renderSessionCard();
+  // Weekly schedule
+  h+=renderScheduleCard();
   // Leaderboard (top 3, initials only)
   var lb40=[],lb100=[];
   (hub.athletes||[]).forEach(function(x){
